@@ -43,7 +43,7 @@ yarn-error.log
 .DS_Store
 Thumbs.db
 
-# Firebase credentials (do not push API keys)
+# Firebase credentials (donot push API keys)
 firebase-credentials.json
 *.key
 
