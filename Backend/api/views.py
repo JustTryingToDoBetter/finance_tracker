@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from firebase_admin import db
-from .serializers import ExpenseSerializer
+from .serializers import ExpenseSerializer, BudegtSerializer, SavingsSerializer
 
 class AddExpenseView(APIView):
     def post(self, request):
@@ -22,3 +22,41 @@ class GetExpensesView(APIView):
         ref = db.reference(f"users/{user_id}/expenses")
         expenses = ref.get()
         return Response(expenses, status=status.HTTP_200_OK)
+
+class DeleteExpenseView(APIView):
+    def delete(self, request, user_id, expense_id):
+        ref = db.reference(f"users/{user_id}/expenses/{expense_id}")
+        ref.delete()
+        return Response({"message": "Expense deleted successfully!"}, status=status.HTTP_200_OK)
+    
+
+class AddBudgetView(APIView):
+    def post(self, request):
+        serializer = BudegtSerializer(data=request.data)
+        if serializer.is_valid():
+            # Save to Firebase
+            ref = db.reference(f"users/{request.data['user_id']}/budgets")
+            ref.push(serializer.validated_data)
+            return Response({"message": "Budget added successfully!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetBudgetsView(APIView):
+    def get(self, request, user_id):
+        ref = db.reference(f"users/{user_id}/budgets")
+        budgets = ref.get()
+        return Response(budgets, status=status.HTTP_200_OK)
+##make savings
+
+class AddSavingsView(APIView):
+    def post(self, request):
+        serializer = SavingsSerializer(data=request.data)
+        if serializer.is_valid():
+            # Save to Firebase
+            ref = db.reference(f"users/{request.data['user_id']}/savings")
+            ref.push(serializer.validated_data)
+
+class GetSavingsView(APIView):
+    def get(self, request, user_id):
+        ref = db.reference(f"users/{user_id}/savings")
+        savings = ref.get()
+        return Response(savings, status=status.HTTP_200_OK)
