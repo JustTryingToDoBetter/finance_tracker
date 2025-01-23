@@ -14,14 +14,14 @@ from pathlib import Path
 import firebase_admin
 from firebase_admin import credentials
 
-cred = credentials.Certificate("Backend\\Backend\\financetracker-2e8d5-firebase-adminsdk-fbsvc-8e51af60fb.json")
+cred = credentials.Certificate(r"C:\Users\Cowin\OneDrive - University of the Western Cape\Documents\GitHub\finance_tracker\Backend\Backend\financetracker-2e8d5-firebase-adminsdk-fbsvc-8e51af60fb.json")
 firebase_admin.initialize_app(cred)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+Django_SETTINGS_MODULE = 'Backend.settings'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
 ]
 
 MIDDLEWARE = [

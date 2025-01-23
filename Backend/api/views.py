@@ -74,3 +74,29 @@ class DeleteExpenseView(APIView):
         ref = db.reference(f"users/{user_id}/expenses/{expense_id}")
         ref.delete()
         return Response({"message": "Expense deleted successfully!"}, status=status.HTTP_200_OK)
+
+
+class GetExpensesView(BaseFinanceView):
+    """ 
+
+    Retrieves all expenses for a specific user.
+    """
+
+    def __init__(self):
+        super().__init__(ExpenseSerializer, "expenses")
+
+class GetBudgetsView(BaseFinanceView):
+    """
+    Retrieves all budgets for a specific user.
+    """
+
+    def __init__(self):
+        super().__init__(BudgetSerializer, "expenses")
+        
+class GetSavingsView(BaseFinanceView):
+    """
+    Retrieves all savings for a specific user.
+    """
+
+    def __init__(self):
+        super().__init__(SavingsSerializer, "expenses")
