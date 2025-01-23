@@ -1,62 +1,76 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from firebase_admin import db
-from .serializers import ExpenseSerializer, BudegtSerializer, SavingsSerializer
+from .serializers import ExpenseSerializer, BudgetSerializer, SavingsSerializer
 
-class AddExpenseView(APIView):
+
+class BaseFinanceView(APIView):
+    """
+    Base class for finance-related views to avoid code duplication.
+    """
+
+    def __init__(self, serializer_class, firebase_path):
+        self.serializer_class = serializer_class
+        self.firebase_path = firebase_path
+
     def post(self, request):
-        serializer = ExpenseSerializer(data=request.data)
+        """
+        Handles POST requests to add a new finance entry (expense, budget, or savings).
+        """
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            # Save to Firebase
-            ref = db.reference(f"users/{request.data['user_id']}/expenses")
+            ref = db.reference(f"users/{request.data['user_id']}/{self.firebase_path}")
             ref.push(serializer.validated_data)
-            return Response({"message": "Expense added successfully!"}, status=status.HTTP_201_CREATED)
+            return Response({"message": f"{self.firebase_path.capitalize()} added successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GetExpensesView(APIView):
     def get(self, request, user_id):
-        ref = db.reference(f"users/{user_id}/expenses")
-        expenses = ref.get()
-        return Response(expenses, status=status.HTTP_200_OK)
+        """
+        Handles GET requests to retrieve all finance entries for a user.
+        """
+        ref = db.reference(f"users/{user_id}/{self.firebase_path}")
+        entries = ref.get()
+        return Response(entries, status=status.HTTP_200_OK)
+
+
+class AddExpenseView(BaseFinanceView):
+    """
+    View for adding and retrieving expenses.
+    """
+
+    def __init__(self):
+        super().__init__(ExpenseSerializer, "expenses")
+
+
+class AddBudgetView(BaseFinanceView):
+    """
+    View for adding and retrieving budgets.
+    """
+
+    def __init__(self):
+        super().__init__(BudgetSerializer, "budgets")
+
+
+class AddSavingsView(BaseFinanceView):
+    """
+    View for adding and retrieving savings.
+    """
+
+    def __init__(self):
+        super().__init__(SavingsSerializer, "savings")
+
 
 class DeleteExpenseView(APIView):
+    """
+    View for deleting a specific expense.
+    """
+
     def delete(self, request, user_id, expense_id):
+        """
+        Handles DELETE requests to delete an expense by its ID.
+        """
         ref = db.reference(f"users/{user_id}/expenses/{expense_id}")
         ref.delete()
         return Response({"message": "Expense deleted successfully!"}, status=status.HTTP_200_OK)
-    
-
-class AddBudgetView(APIView):
-    def post(self, request):
-        serializer = BudegtSerializer(data=request.data)
-        if serializer.is_valid():
-            # Save to Firebase
-            ref = db.reference(f"users/{request.data['user_id']}/budgets")
-            ref.push(serializer.validated_data)
-            return Response({"message": "Budget added successfully!"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class GetBudgetsView(APIView):
-    def get(self, request, user_id):
-        ref = db.reference(f"users/{user_id}/budgets")
-        budgets = ref.get()
-        return Response(budgets, status=status.HTTP_200_OK)
-##make savings
-
-class AddSavingsView(APIView):
-    def post(self, request):
-        serializer = SavingsSerializer(data=request.data)
-        if serializer.is_valid():
-            # Save to Firebase
-            ref = db.reference(f"users/{request.data['user_id']}/savings")
-            ref.push(serializer.validated_data)
-
-class GetSavingsView(APIView):
-    def get(self, request, user_id):
-        ref = db.reference(f"users/{user_id}/savings")
-        savings = ref.get()
-        return Response(savings, status=status.HTTP_200_OK)

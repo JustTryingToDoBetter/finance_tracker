@@ -1,17 +1,39 @@
 from rest_framework import serializers
 from .models import Expense, Budget, Savings
 
-class ExpenseSerializer(serializers.ModelSerializer):
+
+class BaseFinanceSerializer(serializers.ModelSerializer):
+    """
+    Base serializer for finance-related models to avoid code duplication.
+    """
+
     class Meta:
+        abstract = True
+        fields = '__all__'
+
+
+class ExpenseSerializer(BaseFinanceSerializer):
+    """
+    Serializer for the Expense model.
+    """
+
+    class Meta(BaseFinanceSerializer.Meta):
         model = Expense
-        fields = '__all__'
 
-class BudegtSerializer(serializers.ModelSerializer):
-    class Meta:
+
+class BudgetSerializer(BaseFinanceSerializer):
+    """
+    Serializer for the Budget model.
+    """
+
+    class Meta(BaseFinanceSerializer.Meta):
         model = Budget
-        fields = '__all__'
 
-class SavingsSerializer(serializers.ModelSerializer):
-    class Meta:
+
+class SavingsSerializer(BaseFinanceSerializer):
+    """
+    Serializer for the Savings model.
+    """
+
+    class Meta(BaseFinanceSerializer.Meta):
         model = Savings
-        fields = '__all__'
