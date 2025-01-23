@@ -73,4 +73,11 @@
   };
   </script>
   
-  
+  <style scoped>
+  .error {
+    color: red;
+  }
+  .success {
+    color: green;
+  }
+  </style>
