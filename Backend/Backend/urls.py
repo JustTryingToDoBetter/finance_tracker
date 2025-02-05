@@ -16,6 +16,9 @@ from api.views import (
     GetBudgetsView,
     AddSavingsView,
     GetSavingsView,
+    FirebaseLoginView,
+    Auth,
+    Home
 )
 
 # API URL patterns
@@ -32,6 +35,14 @@ api_urlpatterns = [
     # Savings endpoints
     path('savings', AddSavingsView.as_view(), name='add-savings'),
     path('savings/<str:user_id>', GetSavingsView.as_view(), name='get-savings'),
+
+    # Firebase login endpoint
+    path('login', FirebaseLoginView.as_view(), name='firebase-login'),
+
+
+    # Auth endpoints
+    path('auth', Auth, name='auth'),
+    path('home', Home, name='home'),
 ]
 
 # Main URL patterns

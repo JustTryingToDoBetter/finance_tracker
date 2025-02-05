@@ -1,11 +1,44 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from firebase_admin import db
 from .serializers import ExpenseSerializer, BudgetSerializer, SavingsSerializer
+import firebase_admin
+from firebase_admin import credentials, auth
 
 
+if not firebase_admin._apps:
+    cred = credentials.Certificate(r"C:\Users\Cowin\OneDrive - University of the Western Cape\Documents\GitHub\finance_tracker\Backend\Backend\financetracker-2e8d5-firebase-adminsdk-fbsvc-8e51af60fb.json")
+    firebase_admin.initialize_app(cred)
+
+
+class FirebaseLoginView(View):
+    @csrf_exempt
+    def post(self, request):
+        # Extract the Firebase token from the request header
+        firebase_token = request.headers.get('Authorization')
+        
+        if not firebase_token:
+            return JsonResponse({"error": "No token provided"}, status=400)
+        
+        try:
+            # Verify the Firebase token
+            decoded_token = auth.verify_id_token(firebase_token)
+            user_id = decoded_token['uid']
+            
+            # Now you can either create a new user in your DB or retrieve an existing one
+            # For example, create a user record
+            # User.objects.get_or_create(firebase_uid=user_id)
+            
+            return JsonResponse({"message": "User authenticated successfully", "user_id": user_id}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+        
 class BaseFinanceView(APIView):
     """
     Base class for finance-related views to avoid code duplication.
@@ -100,3 +133,10 @@ class GetSavingsView(BaseFinanceView):
 
     def __init__(self):
         super().__init__(SavingsSerializer, "expenses")
+
+
+def Home(request):
+    return JsonResponse({"message": "Welcome!"}, status=200)
+
+def Auth(request):
+    return JsonResponse({"message": "You're logged in."}, status=200)
